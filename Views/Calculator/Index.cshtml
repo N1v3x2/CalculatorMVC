@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Calculator";
+}
+
+<div class="text-center">
+    <div class="calculator">
+        <input class="result" type="text" value="0" readonly>
+        <div class="calc-grid">
+            <button onclick="updateResult(7)">7</button>
+            <button onclick="updateResult(8)">8</button>
+            <button onclick="updateResult(9)">9</button>
+            <button onclick="updateResult('/')">/</button>
+            <button id="c-btn" onclick="updateResult('C')">C</button>
+            <button onclick="updateResult(4)">4</button>
+            <button onclick="updateResult(5)">5</button>
+            <button onclick="updateResult(6)">6</button>
+            <button onclick="updateResult('*')">*</button>
+            <button onclick="updateResult(1)">1</button>
+            <button onclick="updateResult(2)">2</button>
+            <button onclick="updateResult(3)">3</button>
+            <button onclick="updateResult('-')">-</button>
+            <button id="zero-btn" onclick="updateResult(0)">0</button>
+            <button onclick="updateResult('.')">.</button>
+            <button onclick="updateResult('+')">+</button>
+            <button id="equals-btn" onclick="updateResult('=')">=</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        var input = "";
+        function updateResult(func) {
+            if (Number.isInteger(func) || func === ".") {
+                if (input === "0")
+                    input = "";
+                input += func;
+                $(".result").attr("value", input);
+            }
+            else if (func === "+" || func === "-" || func === "/" || func === "*") {
+                input += " " + func + " ";
+                $(".result").attr("value", input);
+            }
+            else if (func === "C") {
+                input = "0";
+                $(".result").attr("value", input);
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Calculator/Calculate",
+                    data: { 'input': input },
+                    cache: false,
+                    success: function(data) {
+                        $(".result").attr("value", data);
+                        input = data;
+                    },
+                    error: function(ex) {
+                        var r = jQuery.parseJSON(response.responseText);
+                        alert("Message: " + r.Message);
+                        alert("StackTrace: " + r.StackTrace);
+                        alert("ExceptionType: " + r.ExceptionType);
+                    }
+                });
+            }
+        }
+    </script>
+}
